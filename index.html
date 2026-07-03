@@ -3,119 +3,282 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Suivi en direct — Filtre ECG</title>
+<title>Exercice ECG — Filtre anti-repliement</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#F0F4FF;color:#1B2A4A;min-height:100vh;padding-bottom:3rem}
+.header{background:#1B2A4A;padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:16px;color:#fff;font-weight:600}
+.header p{font-size:11px;color:#93C5FD;margin-top:1px}
+.hbadge{background:#1e3a5f;color:#60a5fa;font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;white-space:nowrap}
+.prog-bar-outer{background:#0f1e38;height:5px}
+.prog-bar-inner{height:5px;background:#2563EB;transition:width .5s ease;width:0%}
+.container{max-width:680px;margin:0 auto;padding:18px 14px}
 
-/* HEADER */
-.hdr{background:#1e293b;border-bottom:1px solid #334155;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:10}
-.hdr h1{font-size:17px;color:#f8fafc;font-weight:600}
-.hdr p{font-size:11px;color:#94a3b8;margin-top:1px}
-.hdr-right{display:flex;align-items:center;gap:12px;flex-shrink:0}
-.live{display:flex;align-items:center;gap:6px}
-.live-dot{width:9px;height:9px;border-radius:50%;background:#22c55e;animation:pulse 1.5s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.live-txt{font-size:12px;color:#86efac;font-weight:500}
-.ts{font-size:11px;color:#475569}
-.refresh{background:#1e3a5f;color:#60a5fa;border:none;padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer}
+/* CONTEXT CARD */
+.ctx{background:#fff;border-radius:12px;padding:16px;margin-bottom:16px;border-left:4px solid #DC2626;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.ctx-title{font-size:11px;font-weight:700;color:#DC2626;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.ctx p{font-size:14px;color:#1B2A4A;line-height:1.65}
+.specs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.spec-item{background:#EFF6FF;border-radius:8px;padding:9px 12px}
+.spec-item .sl{font-size:10px;color:#64748B;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.spec-item .sv{font-size:13px;font-weight:600;color:#1B2A4A;font-family:"Courier New",monospace}
 
-/* LAYOUT */
-.wrap{max-width:1200px;margin:0 auto;padding:18px 16px}
+/* STEP CARD */
+.card{background:#fff;border-radius:12px;padding:18px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.snum{display:inline-block;background:#2563EB;color:#fff;font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;margin-bottom:10px}
+.card h2{font-size:15px;font-weight:600;margin-bottom:8px;color:#1B2A4A}
+.card .intro{font-size:13.5px;color:#64748B;line-height:1.65;margin-bottom:14px}
 
-/* METRIC CARDS */
-.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px}
-.mc{background:#1e293b;border:0.5px solid #334155;border-radius:10px;padding:14px}
-.mc .ml{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
-.mc .mv{font-size:26px;font-weight:700;color:#f8fafc;font-variant-numeric:tabular-nums}
-.mc .ms{font-size:11px;color:#64748b;margin-top:2px}
+/* QCM */
+.qcm-opt{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:9px;border:1.5px solid #E2E8F0;background:#fff;font-size:14px;color:#1B2A4A;cursor:pointer;margin-bottom:8px;transition:all .15s;text-align:left;width:100%}
+.qcm-opt:hover{border-color:#2563EB;background:#EFF6FF}
+.qcm-opt .radio{width:18px;height:18px;border-radius:50%;border:2px solid #CBD5E1;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.qcm-opt.selected .radio{border-color:#2563EB;background:#2563EB}
+.qcm-opt.selected .radio::after{content:'';width:6px;height:6px;border-radius:50%;background:#fff}
+.qcm-opt.correct{border-color:#16A34A;background:#DCFCE7;pointer-events:none}
+.qcm-opt.correct .radio{border-color:#16A34A;background:#16A34A}
+.qcm-opt.correct .radio::after{content:'';width:6px;height:6px;border-radius:50%;background:#fff}
+.qcm-opt.wrong{border-color:#DC2626;background:#FEF2F2;pointer-events:none}
+.qcm-opt.wrong .radio{border-color:#DC2626;background:#DC2626}
+.qcm-opt.disabled{pointer-events:none;opacity:.55}
 
-/* SECTION TITLE */
-.section-title{font-size:13px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin:0 0 10px}
+/* MCQ with 3 choices */
+.mc3{display:flex;flex-direction:column;gap:8px}
 
-/* PROGRESSION INDIVIDUELLE */
-.students-section{background:#1e293b;border:0.5px solid #334155;border-radius:12px;padding:16px;margin-bottom:18px}
-.students-grid{display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto}
-.student-row{display:flex;align-items:center;gap:10px;padding:8px 10px;background:#0f172a;border-radius:8px}
-.sid{font-family:monospace;font-size:12px;font-weight:600;color:#60a5fa;min-width:70px;flex-shrink:0}
-.prog-wrap{flex:1}
-.prog-label{display:flex;justify-content:space-between;margin-bottom:3px}
-.prog-q{font-size:10px;color:#64748b}
-.prog-pct{font-size:10px;font-weight:600;color:#94a3b8}
-.prog-bar{height:8px;background:#1e293b;border-radius:4px;overflow:hidden;border:0.5px solid #334155}
-.prog-fill{height:100%;border-radius:4px;transition:width .5s ease}
-.prog-fill.done{background:#22c55e}
-.prog-fill.going{background:#2563eb}
-.prog-fill.start{background:#475569}
-.badge-done{background:#064e3b;color:#34d399;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;white-space:nowrap}
-.badge-cours{background:#1e3a5f;color:#60a5fa;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;white-space:nowrap}
-.badge-start{background:#1e293b;color:#475569;font-size:10px;padding:2px 8px;border-radius:10px;white-space:nowrap;border:0.5px solid #334155}
+/* FORMULA BOX */
+.formula{background:#F1F5FF;border:0.5px solid #C7D7F9;border-radius:8px;padding:11px 14px;font-family:"Courier New",monospace;font-size:12.5px;color:#1e3a8a;line-height:1.9;margin-bottom:14px}
+.flabel{font-family:sans-serif;font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;display:block}
 
-/* BAR CHARTS GRID */
-.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:18px}
-.chart-card{background:#1e293b;border:0.5px solid #334155;border-radius:12px;padding:14px}
-.chart-card h3{font-size:12px;color:#94a3b8;margin-bottom:10px;font-weight:500}
-.chart-card .question-text{font-size:11px;color:#64748b;margin-bottom:10px;line-height:1.5;font-style:italic}
+/* HINT */
+.hint{background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;padding:11px 13px;font-size:13px;color:#78350f;margin-bottom:13px;line-height:1.6}
+.hint strong{color:#92400e}
 
-/* BAR */
-.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.bar-label{font-size:11px;min-width:130px;flex-shrink:0;line-height:1.35;color:#94a3b8}
-.bar-outer{flex:1;height:22px;background:#0f172a;border-radius:4px;overflow:hidden;position:relative}
-.bar-inner{height:100%;border-radius:4px;transition:width .5s ease;min-width:2px;display:flex;align-items:center;padding-left:6px}
-.bar-inner.correct{background:#16a34a}
-.bar-inner.wrong{background:#dc2626}
-.bar-inner.neutral{background:#334155}
-.bar-count{font-size:10px;font-weight:600;color:#fff;white-space:nowrap;position:absolute;right:6px;top:50%;transform:translateY(-50%)}
-.bar-pct{font-size:10px;color:#64748b;min-width:32px;text-align:right;flex-shrink:0}
+/* BUTTONS */
+.btn-check{background:#2563EB;color:#fff;border:none;padding:10px 22px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;margin-top:4px;transition:background .15s}
+.btn-check:hover{background:#1d4ed8}
+.btn-check:disabled{background:#94A3B8;cursor:not-allowed}
+.btn-next{display:none;width:100%;margin-top:12px;background:#0D9488;color:#fff;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer}
+.btn-next.visible{display:block}
 
-/* EMPTY */
-.empty{text-align:center;padding:32px;color:#475569;font-size:13px}
+/* FEEDBACK */
+.fb{border-radius:8px;padding:11px 13px;font-size:13px;line-height:1.6;margin-top:11px;display:none}
+.fb.ok{background:#DCFCE7;color:#14532d;border:1px solid #bbf7d0;display:block}
+.fb.err{background:#FEF2F2;color:#7f1d1d;border:1px solid #fecaca;display:block}
+.fb.hint{background:#FFF7ED;color:#7c2d12;border:1px solid #fed7aa;display:block}
+
+/* INPUT */
+.ig label{display:block;font-size:13px;color:#64748B;margin-bottom:5px}
+.ir{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.ir input{width:120px;padding:9px 11px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:14px;color:#1B2A4A;background:#fff;outline:none;font-family:"Courier New",monospace}
+.ir input:focus{border-color:#2563EB;box-shadow:0 0 0 3px #DBEAFE}
+.unit{font-size:12px;color:#64748B}
+
+/* R CHOICE */
+.rchoice{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+
+/* STEP VISIBILITY */
+.step-sec{display:none}.step-sec.active{display:block}
+
+/* SUCCESS */
+.success{background:linear-gradient(135deg,#065f46,#0d9488);border-radius:12px;padding:22px;text-align:center;color:#fff;margin-top:10px;display:none}
+.success h2{font-size:19px;margin-bottom:8px}
+.success p{font-size:13px;opacity:.85;line-height:1.7}
 </style>
 </head>
 <body>
 
-<div class="hdr">
-  <div>
-    <h1>Suivi en direct — Filtre ECG</h1>
-    <p>Butterworth ordre 3 · f₀ = 100 Hz · 9 questions</p>
-  </div>
-  <div class="hdr-right">
-    <div class="live"><div class="live-dot"></div><span class="live-txt">LIVE</span></div>
-    <button class="refresh" onclick="manualRefresh()">↻</button>
-    <span class="ts" id="ts">—</span>
+<div class="header">
+  <div><h1>Filtre anti-repliement ECG</h1><p>Conception d'un filtre analogique · Polytechnique Montréal</p></div>
+  <div class="hbadge" id="hbadge">Q1 / 9</div>
+</div>
+<div class="prog-bar-outer"><div class="prog-bar-inner" id="prog"></div></div>
+
+<div class="container">
+
+<!-- CONTEXTE -->
+<div class="ctx">
+  <div class="ctx-title">🫀 Mise en situation — Capteur ECG</div>
+  <p>Vous devez concevoir le filtre analogique placé <strong>avant le CAN</strong> d'un capteur ECG. On souhaite supprimer les hautes fréquences tout en conservant parfaitement le signal utile jusqu'à <strong>100 Hz</strong>.</p>
+  <div class="specs">
+    <div class="spec-item"><div class="sl">Type</div><div class="sv">Passe-bas</div></div>
+    <div class="spec-item"><div class="sl">Fréquence de coupure</div><div class="sv">f₀ = 100 Hz</div></div>
+    <div class="spec-item"><div class="sl">Réponse</div><div class="sv">Butterworth</div></div>
+    <div class="spec-item"><div class="sl">Ordre</div><div class="sv">n = 3</div></div>
   </div>
 </div>
 
-<div class="wrap">
-
-  <!-- METRICS -->
-  <div class="metrics">
-    <div class="mc"><div class="ml">Connectés</div><div class="mv" id="m-total">0</div><div class="ms">ont ouvert l'exercice</div></div>
-    <div class="mc"><div class="ml">Terminé</div><div class="mv" id="m-done" style="color:#22c55e">0</div><div class="ms">9/9 questions</div></div>
-    <div class="mc"><div class="ml">En cours</div><div class="mv" id="m-prog" style="color:#60a5fa">0</div><div class="ms">progression active</div></div>
-    <div class="mc"><div class="ml">Taux</div><div class="mv" id="m-rate">0%</div><div class="ms">de réussite globale</div></div>
+<!-- Q1 -->
+<div class="step-sec active" id="s1">
+  <div class="card">
+    <div class="snum">Question 1</div>
+    <h2>Quel type de filtre choisir pour l'anti-repliement ECG ?</h2>
+    <p class="intro">Le signal ECG utile va jusqu'à 100 Hz. Avant le CAN, on doit bloquer les composantes au-dessus pour éviter le repliement spectral.</p>
+    <button class="qcm-opt" onclick="answerQ1('ph')"><div class="radio"></div>Passe-haut</button>
+    <button class="qcm-opt" onclick="answerQ1('pb2')"><div class="radio"></div>Passe-bande</button>
+    <button class="qcm-opt" onclick="answerQ1('pb')"><div class="radio"></div>Passe-bas</button>
+    <button class="qcm-opt" onclick="answerQ1('rej')"><div class="radio"></div>Réjecteur de bande</button>
+    <div class="fb" id="fb1"></div>
+    <button class="btn-next" id="n1" onclick="goStep(2)">Question suivante →</button>
   </div>
+</div>
 
-  <!-- PROGRESSION INDIVIDUELLE -->
-  <div class="students-section">
-    <div class="section-title" style="margin-bottom:12px">Progression individuelle</div>
-    <div class="students-grid" id="students-grid">
-      <div class="empty">En attente des étudiants…</div>
+<!-- Q2 -->
+<div class="step-sec" id="s2">
+  <div class="card">
+    <div class="snum">Question 2</div>
+    <h2>Pourquoi choisir une réponse Butterworth ?</h2>
+    <p class="intro">Plusieurs familles de filtres existent. Pour un signal ECG, la forme du signal dans la bande passante est critique.</p>
+    <button class="qcm-opt" onclick="answerQ2('pente')"><div class="radio"></div>Pente de coupure maximale</button>
+    <button class="qcm-opt" onclick="answerQ2('plate')"><div class="radio"></div>Bande passante la plus plate possible (pas d'ondulation)</button>
+    <button class="qcm-opt" onclick="answerQ2('q')"><div class="radio"></div>Meilleur facteur de qualité Q</button>
+    <button class="qcm-opt" onclick="answerQ2('cout')"><div class="radio"></div>Coût de fabrication plus faible</button>
+    <div class="fb" id="fb2"></div>
+    <button class="btn-next" id="n2" onclick="goStep(3)">Question suivante →</button>
+  </div>
+</div>
+
+<!-- Q3 -->
+<div class="step-sec" id="s3">
+  <div class="card">
+    <div class="snum">Question 3</div>
+    <h2>Un Butterworth ordre 3 se réalise par :</h2>
+    <p class="intro">L'ordre 3 est impair. On doit décomposer en étages réalisables avec des AOP.</p>
+    <button class="qcm-opt" onclick="answerQ3('trois1')"><div class="radio"></div>Trois filtres du 1er ordre en cascade</button>
+    <button class="qcm-opt" onclick="answerQ3('2+1')"><div class="radio"></div>Un filtre 2ème ordre (Sallen-Key) + un filtre 1er ordre</button>
+    <button class="qcm-opt" onclick="answerQ3('deux2')"><div class="radio"></div>Deux filtres du 2ème ordre en cascade</button>
+    <div class="fb" id="fb3"></div>
+    <button class="btn-next" id="n3" onclick="goStep(4)">Question suivante →</button>
+  </div>
+</div>
+
+<!-- Q4 -->
+<div class="step-sec" id="s4">
+  <div class="card">
+    <div class="snum">Question 4</div>
+    <h2>Lequel de ces schémas est un étage Sallen-Key passe-bas ?</h2>
+    <p class="intro">Identifiez la topologie Sallen-Key parmi ces deux circuits.</p>
+    <!-- Two circuit descriptions as text (ASCII style) -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div style="background:#F8FAFF;border:1.5px solid #E2E8F0;border-radius:10px;padding:12px;font-family:'Courier New',monospace;font-size:11px;line-height:1.8;color:#1B2A4A">
+        <div style="font-size:10px;color:#64748B;font-family:sans-serif;margin-bottom:6px;font-weight:600">Circuit A</div>
+        vi→[R]→●→(+)AOP→vo<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[C]↓<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GND<br>
+        Feedback: vo→(−)
+      </div>
+      <div style="background:#F8FAFF;border:1.5px solid #E2E8F0;border-radius:10px;padding:12px;font-family:'Courier New',monospace;font-size:11px;line-height:1.8;color:#1B2A4A">
+        <div style="font-size:10px;color:#64748B;font-family:sans-serif;margin-bottom:6px;font-weight:600">Circuit B</div>
+        vi→[R]→[R]→(+)AOP→vo<br>
+        &nbsp;&nbsp;&nbsp;[C]↓&nbsp;[C]↑feedback<br>
+        &nbsp;&nbsp;&nbsp;GND&nbsp;(−)→[Rf][R1]→GND
+      </div>
     </div>
+    <button class="qcm-opt" onclick="answerQ4('A')"><div class="radio"></div>Circuit A — filtre RC 1er ordre + suiveur</button>
+    <button class="qcm-opt" onclick="answerQ4('B')"><div class="radio"></div>Circuit B — Sallen-Key 2ème ordre</button>
+    <div class="fb" id="fb4"></div>
+    <button class="btn-next" id="n4" onclick="goStep(5)">Question suivante →</button>
   </div>
-
-  <!-- BAR CHARTS -->
-  <div class="section-title">Réponses par question</div>
-  <div class="charts-grid" id="charts-grid">
-    <div class="empty" style="grid-column:1/-1">En attente des données…</div>
-  </div>
-
 </div>
+
+<!-- Q5 -->
+<div class="step-sec" id="s5">
+  <div class="card">
+    <div class="snum">Question 5</div>
+    <h2>Quel facteur Q pour l'étage Sallen-Key du Butterworth ordre 3 ?</h2>
+    <p class="intro">Attention — le Q d'un Butterworth dépend de l'ordre total du filtre, pas seulement de l'ordre de l'étage.</p>
+    <div class="hint"><strong>Indice :</strong> Pour Butterworth ordre 2 seul : Q = 0.707 (= 1/√2). Pour Butterworth ordre 3, l'étage 2ème ordre a un Q différent car les pôles sont placés différemment.</div>
+    <button class="qcm-opt" onclick="answerQ5('0707')"><div class="radio"></div>Q = 0.707 (comme Butterworth ordre 2)</button>
+    <button class="qcm-opt" onclick="answerQ5('1')"><div class="radio"></div>Q = 1.000</button>
+    <button class="qcm-opt" onclick="answerQ5('1307')"><div class="radio"></div>Q = 1.307 (comme Chebyshev)</button>
+    <div class="fb" id="fb5"></div>
+    <button class="btn-next" id="n5" onclick="goStep(6)">Question suivante →</button>
+  </div>
+</div>
+
+<!-- Q6 — R étage 1er ordre -->
+<div class="step-sec" id="s6">
+  <div class="card">
+    <div class="snum">Question 6</div>
+    <h2>Calculer R pour l'étage 1er ordre (f₀ = 100 Hz, C = 100 nF)</h2>
+    <p class="intro">Appliquez la formule de la fréquence de coupure pour trouver R.</p>
+    <div class="formula"><span class="flabel">Formule</span>ω₀ = 2π × f₀ = 2π × 100 ≈ 628 rad/s<br>ω₀ = 1/(RC)  →  R = 1/(ω₀ × C)</div>
+    <p class="intro" style="margin-bottom:12px">Quelle est la valeur correcte de R ?</p>
+    <div class="rchoice">
+      <button class="qcm-opt" onclick="answerR('A','1592')"><div class="radio"></div>R = 1 592 Ω &nbsp;<span style="font-size:12px;color:#94A3B8">(= 1/(2π×100×10⁻⁶))</span></button>
+      <button class="qcm-opt" onclick="answerR('B','15916')"><div class="radio"></div>R = 15 916 Ω &nbsp;<span style="font-size:12px;color:#94A3B8">(= 1/(2π×100×10⁻⁸))</span></button>
+      <button class="qcm-opt" onclick="answerR('C','159')"><div class="radio"></div>R = 159 Ω &nbsp;<span style="font-size:12px;color:#94A3B8">(= 1/(2π×1000×10⁻⁷))</span></button>
+    </div>
+    <div class="fb" id="fb6"></div>
+    <button class="btn-next" id="n6" onclick="goStep(7)">Question suivante →</button>
+  </div>
+</div>
+
+<!-- Q7 — k pour Butterworth -->
+<div class="step-sec" id="s7">
+  <div class="card">
+    <div class="snum">Question 7</div>
+    <h2>Quelle valeur de k pour l'étage Sallen-Key Butterworth ordre 3 ?</h2>
+    <p class="intro">Vous savez que Q = 1. Retrouvez k à partir de la relation Q = 1/(3−k).</p>
+    <div class="formula"><span class="flabel">Relation Sallen-Key</span>Q = 1/(3−k)  →  k = 3 − 1/Q<br>Avec Q = 1 : k = ?</div>
+    <div class="rchoice">
+      <button class="qcm-opt" onclick="answerK('A','1586')"><div class="radio"></div>k = 1.586 &nbsp;<span style="font-size:12px;color:#94A3B8">(Butterworth ordre 2)</span></button>
+      <button class="qcm-opt" onclick="answerK('B','2')"><div class="radio"></div>k = 2.000 &nbsp;<span style="font-size:12px;color:#94A3B8">(= 3 − 1/1)</span></button>
+      <button class="qcm-opt" onclick="answerK('C','1234')"><div class="radio"></div>k = 1.234 &nbsp;<span style="font-size:12px;color:#94A3B8">(= 3 − 1/0.541)</span></button>
+    </div>
+    <div class="fb" id="fb7"></div>
+    <button class="btn-next" id="n7" onclick="goStep(8)">Question suivante →</button>
+  </div>
+</div>
+
+<!-- Q8 — Rf -->
+<div class="step-sec" id="s8">
+  <div class="card">
+    <div class="snum">Question 8</div>
+    <h2>Calculer Rf pour l'étage Sallen-Key (k = 2, R = 15 916 Ω)</h2>
+    <p class="intro">Dans la topologie Sallen-Key, le gain k est réalisé par un ampli non-inverseur.</p>
+    <div class="formula"><span class="flabel">Montage non-inverseur</span>k = 1 + Rf/R  →  Rf = (k−1) × R<br>Avec k=2 et R=15 916 Ω : Rf = ?</div>
+    <div class="rchoice">
+      <button class="qcm-opt" onclick="answerRf('A','15916')"><div class="radio"></div>Rf = 15 916 Ω &nbsp;<span style="font-size:12px;color:#94A3B8">(= (2−1)×15916)</span></button>
+      <button class="qcm-opt" onclick="answerRf('B','31831')"><div class="radio"></div>Rf = 31 831 Ω &nbsp;<span style="font-size:12px;color:#94A3B8">(= 2×15916)</span></button>
+      <button class="qcm-opt" onclick="answerRf('C','7958')"><div class="radio"></div>Rf = 7 958 Ω &nbsp;<span style="font-size:12px;color:#94A3B8">(= 15916/2)</span></button>
+    </div>
+    <div class="fb" id="fb8"></div>
+    <button class="btn-next" id="n8" onclick="goStep(9)">Question suivante →</button>
+  </div>
+</div>
+
+<!-- Q9 — question piège -->
+<div class="step-sec" id="s9">
+  <div class="card">
+    <div class="snum">Question 9 — Question piège !</div>
+    <h2>À ω = ω₀, l'atténuation totale du filtre est de :</h2>
+    <p class="intro">Calculez |H₁(jω₀)| × |H₂(jω₀)| en cascade et convertissez en dB.</p>
+    <div class="hint"><strong>Méthode :</strong> H₁ à ω₀ : |H₁| = 1/√2 → −3 dB. H₂ avec Q=1 à ω₀ : calculez séparément. Total en dB = somme des dB.</div>
+    <button class="qcm-opt" onclick="answerDB('m3')"><div class="radio"></div>−3 dB</button>
+    <button class="qcm-opt" onclick="answerDB('m6')"><div class="radio"></div>−6 dB</button>
+    <button class="qcm-opt" onclick="answerDB('m9')"><div class="radio"></div>−9 dB</button>
+    <button class="qcm-opt" onclick="answerDB('m20')"><div class="radio"></div>−20 dB</button>
+    <div class="fb" id="fb9"></div>
+  </div>
+  <div class="success" id="success">
+    <div style="font-size:42px;margin-bottom:10px">🎉</div>
+    <h2>Exercice complété !</h2>
+    <p>
+      Filtre Butterworth PB ordre 3 · f₀ = 100 Hz<br>
+      C = 100 nF · R = 15 916 Ω · Rf = R = 15 916 Ω · k = 2 · Q = 1<br><br>
+      H₁(ω₀) = −3 dB &nbsp;+&nbsp; H₂(ω₀) = −6 dB &nbsp;=&nbsp; <strong>−9 dB total</strong><br>
+      Pente asymptotique : <strong>−60 dB/décade</strong>
+    </p>
+  </div>
+</div>
+
+</div><!-- /container -->
 
 <!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, set, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "VOTRE_API_KEY",
@@ -129,121 +292,238 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+let sid = sessionStorage.getItem('ecg_sid');
+if (!sid) { sid = 'E' + Math.random().toString(36).substr(2,6).toUpperCase(); sessionStorage.setItem('ecg_sid', sid); }
+window.SID = sid; window.DB = db; window.DBREF = ref; window.DBSET = set; window.DBTIMESTAMP = serverTimestamp;
 
-// Questions metadata
-const QUESTIONS = [
-  { id:1, label:'Q1 — Type de filtre', short:'Quel type de filtre ?',
-    opts:[{val:'ph',label:'Passe-haut'},{val:'pb2',label:'Passe-bande'},{val:'pb',label:'Passe-bas'},{val:'rej',label:'Réjecteur'}], correct:'pb' },
-  { id:2, label:'Q2 — Pourquoi Butterworth ?', short:'Pourquoi Butterworth ?',
-    opts:[{val:'pente',label:'Pente maximale'},{val:'plate',label:'BP la plus plate'},{val:'q',label:'Meilleur Q'},{val:'cout',label:'Coût plus faible'}], correct:'plate' },
-  { id:3, label:'Q3 — Décomposition ordre 3', short:'Décomposition ?',
-    opts:[{val:'trois1',label:'3× ordre 1'},{val:'2+1',label:'Ordre 2 + ordre 1'},{val:'deux2',label:'2× ordre 2'}], correct:'2+1' },
-  { id:4, label:'Q4 — Schéma Sallen-Key', short:'Quel schéma est SK ?',
-    opts:[{val:'A',label:'Circuit A'},{val:'B',label:'Circuit B'}], correct:'B' },
-  { id:5, label:'Q5 — Facteur Q', short:'Q pour Butterworth ordre 3 ?',
-    opts:[{val:'0707',label:'Q = 0.707'},{val:'1',label:'Q = 1.000'},{val:'1307',label:'Q = 1.307'}], correct:'1' },
-  { id:6, label:'Q6 — Valeur de R', short:'R = ? (f₀=100Hz, C=100nF)',
-    opts:[{val:'A',label:'1 592 Ω'},{val:'B',label:'15 916 Ω'},{val:'C',label:'159 Ω'}], correct:'B' },
-  { id:7, label:'Q7 — Valeur de k', short:'k = ?',
-    opts:[{val:'A',label:'k = 1.586'},{val:'B',label:'k = 2.000'},{val:'C',label:'k = 1.234'}], correct:'B' },
-  { id:8, label:'Q8 — Valeur de Rf', short:'Rf = (k-1)×R = ?',
-    opts:[{val:'A',label:'15 916 Ω'},{val:'B',label:'31 831 Ω'},{val:'C',label:'7 958 Ω'}], correct:'A' },
-  { id:9, label:'Q9 — Atténuation à ω₀', short:'|H(ω₀)| en dB ?',
-    opts:[{val:'m3',label:'−3 dB'},{val:'m6',label:'−6 dB'},{val:'m9',label:'−9 dB'},{val:'m20',label:'−20 dB'}], correct:'m9' },
-];
+set(ref(db, 'etudiants/' + sid), {
+  id: sid, debut: serverTimestamp(), question_actuelle: 1,
+  reponses: {q1:null,q2:null,q3:null,q4:null,q5:null,q6:null,q7:null,q8:null,q9:null}
+});
+</script>
 
-function render(data) {
-  if (!data) return;
-  const etudiants = Object.values(data);
-  const total = etudiants.length;
+<script>
+const TOTAL_Q = 9;
+let current = 1;
+let answered = new Array(TOTAL_Q+1).fill(false);
 
-  // Metrics
-  const done = etudiants.filter(e => e.resultats?.q9==='correct').length;
-  const inprog = etudiants.filter(e => (e.question_actuelle||1)>1 && e.resultats?.q9!=='correct').length;
-
-  // Global correct rate
-  let totalAns=0, totalCorrect=0;
-  etudiants.forEach(e => {
-    if(!e.resultats) return;
-    Object.values(e.resultats).forEach(v => { totalAns++; if(v==='correct') totalCorrect++; });
+function log(q, rep, correct) {
+  if (!window.DB) return;
+  try {
+    const sid = window.SID;
+    window.DBSET(window.DBREF(window.DB, 'etudiants/'+sid+'/reponses/q'+q), rep);
+    window.DBSET(window.DBREF(window.DB, 'etudiants/'+sid+'/resultats/q'+q), correct?'correct':'incorrect');
+    window.DBSET(window.DBREF(window.DB, 'etudiants/'+sid+'/question_actuelle'), q);
+    window.DBSET(window.DBREF(window.DB, 'etudiants/'+sid+'/derniere_maj'), window.DBTIMESTAMP());
+    // Global stats for bar charts
+    window.DBSET(window.DBREF(window.DB, 'stats/q'+q+'/'+rep), {ts: window.DBTIMESTAMP()});
+  } catch(e) {}
+}
+function setOpts(btns, chosen, correctVal) {
+  btns.forEach(b => {
+    b.classList.add('disabled');
+    if (b.dataset.val === correctVal) b.classList.add('correct');
+    else if (b.dataset.val === chosen && chosen !== correctVal) b.classList.add('wrong');
   });
-  const rate = totalAns>0 ? Math.round(totalCorrect/totalAns*100) : 0;
-
-  document.getElementById('m-total').textContent = total;
-  document.getElementById('m-done').textContent = done;
-  document.getElementById('m-prog').textContent = inprog;
-  document.getElementById('m-rate').textContent = rate+'%';
-  document.getElementById('ts').textContent = new Date().toLocaleTimeString('fr-FR');
-
-  // STUDENTS GRID
-  const sg = document.getElementById('students-grid');
-  if(total===0){ sg.innerHTML='<div class="empty">En attente des étudiants…</div>'; }
-  else {
-    const sorted = [...etudiants].sort((a,b)=>(b.question_actuelle||1)-(a.question_actuelle||1));
-    sg.innerHTML = sorted.map(e => {
-      const q = Math.min(e.question_actuelle||1, 9);
-      const isDone = e.resultats?.q9==='correct';
-      const pct = Math.round((q-1)/9*100);
-      const fillClass = isDone ? 'done' : q>1 ? 'going' : 'start';
-      const badge = isDone
-        ? '<span class="badge-done">✓ Terminé</span>'
-        : q>1
-          ? `<span class="badge-cours">Q${q}/9</span>`
-          : '<span class="badge-start">Q1</span>';
-      return `<div class="student-row">
-        <div class="sid">${e.id||'—'}</div>
-        <div class="prog-wrap">
-          <div class="prog-label"><span class="prog-q">${isDone?'9/9 questions':q>1?((q-1)+'/9 complètes'):'Démarré'}</span><span class="prog-pct">${isDone?100:pct}%</span></div>
-          <div class="prog-bar"><div class="prog-fill ${fillClass}" style="width:${isDone?100:pct}%"></div></div>
-        </div>
-        ${badge}
-      </div>`;
-    }).join('');
-  }
-
-  // BAR CHARTS
-  const cg = document.getElementById('charts-grid');
-  if(total===0){ cg.innerHTML='<div class="empty" style="grid-column:1/-1">En attente des données…</div>'; return; }
-
-  cg.innerHTML = QUESTIONS.map(q => {
-    // Count responses for this question
-    const counts = {};
-    q.opts.forEach(o => counts[o.val]=0);
-    etudiants.forEach(e => {
-      const rep = e.reponses?.['q'+q.id];
-      if(rep && counts[rep]!==undefined) counts[rep]++;
-    });
-    const totalRep = Object.values(counts).reduce((a,b)=>a+b,0);
-    const maxCount = Math.max(...Object.values(counts), 1);
-
-    const bars = q.opts.map(opt => {
-      const n = counts[opt.val]||0;
-      const pct = totalRep>0 ? Math.round(n/totalRep*100) : 0;
-      const barW = maxCount>0 ? Math.round(n/maxCount*100) : 0;
-      const cls = opt.val===q.correct ? 'correct' : 'wrong';
-      return `<div class="bar-row">
-        <div class="bar-label">${opt.label}</div>
-        <div class="bar-outer">
-          <div class="bar-inner ${n===0?'neutral':cls}" style="width:${barW}%"></div>
-          ${n>0?`<span class="bar-count">${n}</span>`:''}
-        </div>
-        <div class="bar-pct">${pct}%</div>
-      </div>`;
-    }).join('');
-
-    const answered = etudiants.filter(e=>e.reponses?.['q'+q.id]).length;
-    return `<div class="chart-card">
-      <h3>${q.label}</h3>
-      <div class="question-text">${q.short} · ${answered}/${total} ont répondu</div>
-      ${bars}
-    </div>`;
-  }).join('');
+}
+function showFb(id, cls, msg) { const el=document.getElementById(id); el.className='fb '+cls; el.innerHTML=msg; }
+function showNext(id) { document.getElementById(id).className='btn-next visible'; }
+function updateProg(q) {
+  current = q;
+  document.getElementById('hbadge').textContent = 'Q'+q+' / '+TOTAL_Q;
+  document.getElementById('prog').style.width = ((q-1)/TOTAL_Q*100)+'%';
+}
+function goStep(n) {
+  for(let i=1;i<=TOTAL_Q;i++) document.getElementById('s'+i).className='step-sec'+(i===n?' active':'');
+  updateProg(n);
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// Realtime listener
-const etudiantsRef = ref(db, 'etudiants');
-onValue(etudiantsRef, snap => render(snap.val()));
-window.manualRefresh = () => onValue(etudiantsRef, snap => render(snap.val()), {onlyOnce:true});
+// Tag all qcm-opt buttons with data-val
+document.querySelectorAll('.qcm-opt').forEach(b => {
+  // val set by onclick parameter — extract from onclick attr
+});
+
+function answerQ1(val) {
+  if(answered[1]) return; answered[1]=true;
+  const btns = document.querySelectorAll('#s1 .qcm-opt');
+  const vals = ['ph','pb2','pb','rej'];
+  btns.forEach((b,i) => {
+    b.classList.add('disabled');
+    if(vals[i]==='pb') b.classList.add('correct');
+    else if(vals[i]===val && val!=='pb') b.classList.add('wrong');
+  });
+  if(val==='pb'){
+    showFb('fb1','ok','✓ Passe-bas ! On laisse passer les fréquences utiles (≤100 Hz) et on coupe les hautes fréquences qui causeraient un repliement spectral à la conversion numérique.');
+    showNext('n1');
+  } else {
+    showFb('fb1','err','✗ Non. Un filtre anti-repliement doit bloquer les fréquences au-dessus de la bande utile → c\'est un passe-bas.');
+  }
+  log(1, val, val==='pb');
+}
+
+function answerQ2(val) {
+  if(answered[2]) return; answered[2]=true;
+  const btns = document.querySelectorAll('#s2 .qcm-opt');
+  const vals = ['pente','plate','q','cout'];
+  btns.forEach((b,i) => {
+    b.classList.add('disabled');
+    if(vals[i]==='plate') b.classList.add('correct');
+    else if(vals[i]===val && val!=='plate') b.classList.add('wrong');
+  });
+  if(val==='plate'){
+    showFb('fb2','ok','✓ Correct ! Butterworth = réponse maximalement plate en bande passante. Pour un ECG, toute ondulation déformerait la morphologie du signal (onde P, complexe QRS, onde T) et fausserait le diagnostic.');
+    showNext('n2');
+  } else if(val==='pente'){
+    showFb('fb2','err','✗ La pente maximale c\'est Chebyshev ou Elliptique. Butterworth a une transition plus douce mais sans aucune ondulation en BP.');
+  } else {
+    showFb('fb2','err','✗ Non. Le choix de Butterworth est motivé par la réponse plate en bande passante, essentielle pour ne pas déformer le signal ECG.');
+  }
+  log(2, val, val==='plate');
+}
+
+function answerQ3(val) {
+  if(answered[3]) return; answered[3]=true;
+  const btns = document.querySelectorAll('#s3 .qcm-opt');
+  const vals = ['trois1','2+1','deux2'];
+  btns.forEach((b,i) => {
+    b.classList.add('disabled');
+    if(vals[i]==='2+1') b.classList.add('correct');
+    else if(vals[i]===val && val!=='2+1') b.classList.add('wrong');
+  });
+  if(val==='2+1'){
+    showFb('fb3','ok','✓ Exact ! Ordre 3 impair = 1 étage 2ème ordre Sallen-Key + 1 étage 1er ordre (RC + suiveur). H_total = H₁ × H₂ — les fonctions de transfert se multiplient grâce à Z_out ≈ 0 de l\'AOP.');
+    showNext('n3');
+  } else if(val==='trois1'){
+    showFb('fb3','err','✗ Techniquement possible, mais ce n\'est pas la décomposition Butterworth canonique. Les Q des étages ne correspondent pas au gabarit Butterworth optimal.');
+  } else {
+    showFb('fb3','err','✗ Deux étages 2ème ordre donneraient un ordre 4, pas 3.');
+  }
+  log(3, val, val==='2+1');
+}
+
+function answerQ4(val) {
+  if(answered[4]) return; answered[4]=true;
+  const btns = document.querySelectorAll('#s4 .qcm-opt');
+  const vals = ['A','B'];
+  btns.forEach((b,i) => {
+    b.classList.add('disabled');
+    if(vals[i]==='B') b.classList.add('correct');
+    else if(vals[i]===val && val!=='B') b.classList.add('wrong');
+  });
+  if(val==='B'){
+    showFb('fb4','ok','✓ Circuit B = Sallen-Key ! Deux R en série, deux C vers masse/sortie, AOP non-inverseur avec gain k. Le circuit A est un simple passe-bas 1er ordre + suiveur.');
+    showNext('n4');
+  } else {
+    showFb('fb4','err','✗ Le circuit A est le filtre 1er ordre (RC + suiveur). Le Sallen-Key a deux RC en cascade et utilise la rétroaction via C₂ vers la sortie pour créer le 2ème ordre.');
+  }
+  log(4, val, val==='B');
+}
+
+function answerQ5(val) {
+  if(answered[5]) return; answered[5]=true;
+  const btns = document.querySelectorAll('#s5 .qcm-opt');
+  const vals = ['0707','1','1307'];
+  btns.forEach((b,i) => {
+    b.classList.add('disabled');
+    if(vals[i]==='1') b.classList.add('correct');
+    else if(vals[i]===val && val!=='1') b.classList.add('wrong');
+  });
+  if(val==='1'){
+    showFb('fb5','ok','✓ Q = 1 pour l\'étage 2ème ordre du Butterworth ordre 3. Les pôles du Butterworth ordre 3 sont à −1 (réel) et à −0.5 ± j(√3/2), ce qui donne Q = 1 pour les pôles complexes.');
+    showNext('n5');
+  } else if(val==='0707'){
+    showFb('fb5','err','✗ Q = 0.707 est le Q du Butterworth d\'ordre 2 seul. Pour l\'ordre 3, les pôles sont placés différemment → Q = 1. C\'est le piège classique !');
+  } else {
+    showFb('fb5','err','✗ Q = 1.307 est pour Chebyshev. Pour Butterworth ordre 3 : Q = 1.');
+  }
+  log(5, val, val==='1');
+}
+
+function answerR(choice, val) {
+  if(answered[6]) return; answered[6]=true;
+  const btns = document.querySelectorAll('#s6 .qcm-opt');
+  btns.forEach((b,i) => {
+    b.classList.add('disabled');
+    const c = ['A','B','C'][i];
+    if(c==='B') b.classList.add('correct');
+    else if(c===choice && choice!=='B') b.classList.add('wrong');
+  });
+  if(choice==='B'){
+    showFb('fb6','ok','✓ R = 15 916 Ω ! R = 1/(2π×100×100×10⁻⁹) = 1/(6.28×10⁻⁵) ≈ 15 916 Ω ≈ 16 kΩ. Notez que c\'est 10× plus grand qu\'à 1 kHz — logique car f₀ est 10× plus basse.');
+    showNext('n6');
+  } else if(choice==='A'){
+    showFb('fb6','err','✗ 1 592 Ω correspond à f₀ = 1 kHz (pas 100 Hz). Attention à la valeur de C : 100 nF = 100×10⁻⁹ F.');
+  } else {
+    showFb('fb6','err','✗ 159 Ω est trop faible. R = 1/(ω₀C) = 1/(628×100×10⁻⁹) = 1/(6.28×10⁻⁵) ≈ 15 916 Ω.');
+  }
+  log(6, choice, choice==='B');
+}
+
+function answerK(choice, val) {
+  if(answered[7]) return; answered[7]=true;
+  const btns = document.querySelectorAll('#s7 .qcm-opt');
+  btns.forEach((b,i) => {
+    b.classList.add('disabled');
+    const c = ['A','B','C'][i];
+    if(c==='B') b.classList.add('correct');
+    else if(c===choice && choice!=='B') b.classList.add('wrong');
+  });
+  if(choice==='B'){
+    showFb('fb7','ok','✓ k = 2 ! k = 3 − 1/Q = 3 − 1/1 = 2. Élégant : k = 2 signifie Rf = R exactement. Un seul type de résistance à commander !');
+    showNext('n7');
+  } else if(choice==='A'){
+    showFb('fb7','err','✗ k = 1.586 correspond au Butterworth ordre 2 (Q=0.707). Ici Q=1 → k = 3−1/1 = 2.');
+  } else {
+    showFb('fb7','err','✗ k = 1.234 serait pour Q = 0.541 (Chebyshev type 2). Recalculez avec Q = 1.');
+  }
+  log(7, choice, choice==='B');
+}
+
+function answerRf(choice, val) {
+  if(answered[8]) return; answered[8]=true;
+  const btns = document.querySelectorAll('#s8 .qcm-opt');
+  btns.forEach((b,i) => {
+    b.classList.add('disabled');
+    const c = ['A','B','C'][i];
+    if(c==='A') b.classList.add('correct');
+    else if(c===choice && choice!=='A') b.classList.add('wrong');
+  });
+  if(choice==='A'){
+    showFb('fb8','ok','✓ Rf = 15 916 Ω = R ! Avec k=2 : Rf = (2−1)×R = R. Vous n\'avez besoin que d\'une seule valeur de résistance pour tout le filtre. Magnifique propriété du Butterworth ordre 3 en Sallen-Key.');
+    showNext('n8');
+  } else if(choice==='B'){
+    showFb('fb8','err','✗ 31 831 = 2×R correspondrait à k=3, mais k=3 ferait osciller le filtre ! Rf=(k−1)×R=(2−1)×R=R.');
+  } else {
+    showFb('fb8','err','✗ Rf = R/2 donnerait k = 1.5, pas k=2. Rf = (k−1)×R = (2−1)×15916 = 15 916 Ω.');
+  }
+  log(8, choice, choice==='A');
+}
+
+function answerDB(val) {
+  if(answered[9]) return; answered[9]=true;
+  const btns = document.querySelectorAll('#s9 .qcm-opt');
+  const vals = ['m3','m6','m9','m20'];
+  btns.forEach((b,i) => {
+    b.classList.add('disabled');
+    if(vals[i]==='m9') b.classList.add('correct');
+    else if(vals[i]===val && val!=='m9') b.classList.add('wrong');
+  });
+  if(val==='m9'){
+    showFb('fb9','ok','✓ −9 dB ! H₁ à ω₀ = −3 dB. H₂ avec Q=1 à ω₀ : |H₂| = 2/√(0+1+1) → −6 dB. Total : −3+(−6) = −9 dB. Pente : −60 dB/déc.');
+    log(9, val, true);
+    document.getElementById('prog').style.width='100%';
+    document.getElementById('hbadge').textContent='Terminé !';
+    setTimeout(()=>{ document.getElementById('success').style.display='block'; document.getElementById('success').scrollIntoView({behavior:'smooth'}); },400);
+  } else {
+    let msg = '✗ ';
+    if(val==='m3') msg += '−3 dB = atténuation de H₁ seul à ω₀. Il faut aussi compter H₂ en cascade.';
+    else if(val==='m6') msg += '−6 dB = atténuation de H₂ seul. Ajoutez H₁ : −3+(−6) = −9 dB.';
+    else msg += '−20 dB est la pente par décade, pas l\'atténuation à ω₀.';
+    showFb('fb9','err',msg);
+    log(9, val, false);
+  }
+}
 </script>
 </body>
 </html>
