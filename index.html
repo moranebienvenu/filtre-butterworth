@@ -252,7 +252,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     </div>
     <button class="qcm-opt" data-q="7" data-val="A" data-correct="B" onclick="answerQ(this)"><div class="radio"></div><span class="latex-inline">$k = 1{,}586$</span><span class="uni-inline">k = 1,586</span></button>
     <button class="qcm-opt" data-q="7" data-val="B" data-correct="B" onclick="answerQ(this)"><div class="radio"></div><span class="latex-inline">$k = 2{,}000$</span><span class="uni-inline">k = 2,000</span></button>
-    <button class="qcm-opt" data-q="7" data-val="C" data-correct="B" onclick="answerQ(this)"><div class="radio"></div><span class="latex-inline">$k = 1{,}234$</span><span class="uni-inline">k = 1,234</span></button>
+    <button class="qcm-opt" data-q="7" data-val="C" data-correct="B" onclick="answerQ(this)"><div class="radio"></div><span class="latex-inline">$k = 1{,}234$</span><span class="uni-inline">k = 1,152</span></button>
     <div class="fb" id="fb7"></div>
     <button class="btn-next" id="n7" onclick="goStep(8)">Question suivante →</button>
   </div>
@@ -417,7 +417,7 @@ const FEEDBACKS = {
   '7': {
     B: '✓ k = 2. Depuis Q = 1/(3−k) et Q = 1 : 3−k = 1 → k = 2. Élégant : k = 2 implique Rf = R, une seule valeur de résistance pour tout le filtre !',
     A: '✗ k = 1,586 correspond au Butterworth d\'ordre 2 (Q = 0,707). Ici Q = 1 → k = 3 − 1/Q = 2.',
-    C: '✗ k = 1,234 correspondrait à Q = 0,541. Recalculez avec Q = 1 : k = 3 − 1 = 2.'
+    C: '✗ k = 1,152 correspondrait à Q = 0,541. Recalculez avec Q = 1 : k = 3 − 1 = 2.'
   },
   '8': {
     A: '✓ Rf = 15 916 Ω = R. Depuis k = (R+Rf)/R = 2 → R+Rf = 2R → Rf = R. Une seule valeur de résistance suffit pour tout le filtre !',
