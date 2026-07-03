@@ -88,6 +88,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .success{background:linear-gradient(135deg,#065f46,#0d9488);border-radius:12px;padding:22px;text-align:center;color:#fff;margin-top:10px;display:none}
 .success h2{font-size:19px;margin-bottom:10px}
 .success p{font-size:13px;opacity:.9;line-height:1.8}
+
+
+/* ── DEMO ECG : visualisation finale ───────────────────────────── */
+.demo-card{display:none;background:#fff;border-radius:14px;padding:18px;margin-top:18px;box-shadow:0 1px 8px rgba(15,23,42,.10);border:1px solid #dbe7ff}
+.demo-card.visible{display:block;animation:fadeUp .55s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.demo-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+.demo-kicker{font-size:11px;color:#0f766e;font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.demo-title{font-size:17px;color:#1B2A4A;font-weight:800;line-height:1.25}
+.demo-sub{font-size:13px;color:#64748B;line-height:1.55;margin-top:6px;max-width:640px}
+.demo-badge{background:#EFF6FF;border:1px solid #BFDBFE;color:#1D4ED8;font-size:11px;font-weight:700;padding:7px 10px;border-radius:999px;white-space:nowrap}
+.demo-flow{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
+.demo-panel{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:12px;min-width:0}
+.demo-panel-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.demo-panel-title.raw{color:#DC2626}.demo-panel-title.filt{color:#16A34A}.demo-panel-title.over{color:#1B2A4A}
+.demo-panel canvas{width:100%;height:auto;display:block;border-radius:8px;background:#fff}
+.demo-note{font-size:11px;color:#64748B;margin-top:6px;line-height:1.4}
+.demo-arrow{display:flex;align-items:center;justify-content:center;color:#0D9488;font-weight:900;font-size:24px;line-height:1;margin:0}
+.demo-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.demo-btn{padding:10px 15px;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;background:#0D9488;color:white}.demo-btn.secondary{background:#fff;color:#1B2A4A;border:1px solid #CBD5E1}.demo-btn:hover{filter:brightness(.96)}
+.demo-slider{flex:1;min-width:180px}.demo-slider label{display:flex;justify-content:space-between;font-size:11px;color:#64748B;margin-bottom:4px}.demo-slider input{width:100%}
+.btn-demo{display:inline-block;margin-top:16px;background:#fff;color:#065F46;border:1px solid rgba(255,255,255,.7);padding:11px 16px;border-radius:9px;font-size:13px;font-weight:800;cursor:pointer}.btn-demo:hover{background:#ECFDF5}
+@media (min-width:760px){.demo-flow{grid-template-columns:1fr auto 1fr}.demo-panel.over{grid-column:1 / -1}.demo-arrow{font-size:28px}.demo-card{padding:20px}.demo-title{font-size:19px}}
+@media (max-width:520px){.demo-head{display:block}.demo-badge{display:inline-block;margin-top:10px}.demo-arrow{transform:rotate(90deg);height:18px}.demo-title{font-size:16px}}
+
 </style>
 </head>
 <body>
@@ -123,7 +148,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     <button class="qcm-opt" data-q="1" data-val="ph" data-correct="pb" onclick="answerQ(this)"><div class="radio"></div>Passe-haut</button>
     <button class="qcm-opt" data-q="1" data-val="pb2" data-correct="pb" onclick="answerQ(this)"><div class="radio"></div>Passe-bande</button>
     <button class="qcm-opt" data-q="1" data-val="pb" data-correct="pb" onclick="answerQ(this)"><div class="radio"></div>Passe-bas</button>
-    <button class="qcm-opt" data-q="1" data-val="rej" data-correct="pb" onclick="answerQ(this)"><div class="radio"></div>Réjecteur de bande</button>
+    <button class="qcm-opt" data-q="1" data-val="rej" data-correct="pb" onclick="answerQ(this)"><div class="radio"></div>Coupe-bande</button>
     <div class="fb" id="fb1"></div>
     <button class="btn-next" id="n1" onclick="goStep(2)">Question suivante →</button>
   </div>
@@ -133,8 +158,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 <div class="step-sec" id="s2">
   <div class="card">
     <div class="snum">Question 2</div>
-    <h2>Pourquoi choisir une réponse Butterworth ?</h2>
-    <p class="intro">Plusieurs familles de filtres existent. Pour un signal ECG, la forme du signal dans la bande passante est critique.</p>
+    <h2>Choix de la famille de filtre</h2>
+    <p class="intro">Plusieurs familles de filtres existent. Quelle caractéristique de Butterworth rend cette famille plus appropriée ?</p>
     <button class="qcm-opt" data-q="2" data-val="pente" data-correct="plate" onclick="answerQ(this)"><div class="radio"></div>Pente de coupure maximale</button>
     <button class="qcm-opt" data-q="2" data-val="plate" data-correct="plate" onclick="answerQ(this)"><div class="radio"></div>Bande passante la plus plate possible</button>
     <button class="qcm-opt" data-q="2" data-val="q" data-correct="plate" onclick="answerQ(this)"><div class="radio"></div>Meilleur facteur de qualité Q</button>
@@ -273,7 +298,51 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
       Pente asymptotique : <strong>−60 dB/décade</strong><br>
       3 × (−20 dB/déc) = −60 dB/déc
     </p>
+    <button class="btn-demo" onclick="launchDemo()">▶ Voir l'effet du filtre sur un ECG bruité</button>
   </div>
+
+  <section class="demo-card" id="demoContainer" aria-label="Démonstration ECG filtré par Butterworth">
+    <div class="demo-head">
+      <div>
+        <div class="demo-kicker">Application réelle</div>
+        <div class="demo-title">Que fait le filtre Butterworth d'ordre 3 sur un ECG ?</div>
+        <div class="demo-sub">
+          Un bruit musculaire haute fréquence est ajouté au signal ECG. Le filtre passe-bas conçu à
+          <strong>f<sub>c</sub> = 100 Hz</strong> conserve la morphologie du signal utile tout en atténuant les composantes rapides.
+        </div>
+      </div>
+      <div class="demo-badge">Ordre 3 · −60 dB/décade</div>
+    </div>
+
+    <div class="demo-flow">
+      <div class="demo-panel">
+        <div class="demo-panel-title raw">Signal ECG bruité</div>
+        <canvas id="cv-raw" width="720" height="240"></canvas>
+        <div class="demo-note">ECG + bruit EMG haute fréquence + bruit blanc électronique</div>
+      </div>
+
+      <div class="demo-arrow">→</div>
+
+      <div class="demo-panel">
+        <div class="demo-panel-title filt">Signal filtré</div>
+        <canvas id="cv-filt" width="720" height="240"></canvas>
+        <div class="demo-note">Filtre Butterworth passe-bas d'ordre 3, f<sub>c</sub> = 100 Hz</div>
+      </div>
+
+      <div class="demo-panel over">
+        <div class="demo-panel-title over">Superposition : bruité <span style="color:#DC2626">(rouge)</span> / filtré <span style="color:#16A34A">(vert)</span></div>
+        <canvas id="cv-over" width="1100" height="230"></canvas>
+      </div>
+    </div>
+
+    <div class="demo-controls">
+      <button class="demo-btn" id="btn-play" onclick="toggleAnim()">⏸ Pause</button>
+      <div class="demo-slider">
+        <label><span>Amplitude du bruit EMG</span><span id="noise-lbl">σ = 0.08</span></label>
+        <input type="range" id="noise-sl" min="10" max="100" value="50" oninput="updateNoise(this.value)">
+      </div>
+    </div>
+  </section>
 </div>
 
 </div>
@@ -327,18 +396,18 @@ const FEEDBACKS = {
     cout:  '✗ Le coût dépend du nombre de composants. Le vrai avantage de Butterworth est la réponse plate en bande passante.'
   },
   '3': {
-    deux_un: '✓ Un filtre 2ème ordre (Sallen-Key) + un filtre 1er ordre. Ordre 3 impair = 1 étage Sallen-Key + 1 étage RC+suiveur. H_total = H₁ × H₂ grâce à Z_out ≈ 0 de l\'AOP.',
+    deux_un: '✓ Un filtre 2ème ordre + un filtre 1er ordre. Ordre 3 impair = 1 étage Sallen-Key d’ordre 2 + 1 étage filtre actif d’ordre 1. H_total = H₁ × H₂ grâce à Z_out ≈ 0 de l\'AOP.',
     trois1:  '✗ Trois étages 1er ordre ne donnent pas la décomposition Butterworth canonique. Les pôles obtenus ne correspondent pas au gabarit optimal.',
     deux2:   '✗ Deux étages 2ème ordre donneraient un filtre d\'ordre 4, pas 3.'
   },
   '4': {
-    B: '✓ Circuit B = Sallen-Key. Deux R en série vers le (+) de l\'AOP, deux C vers la masse, AOP avec Rf et R₁ fixe le gain k. Le Circuit A est un filtre passe-bas actif du 1er ordre.',
-    A: '✗ Circuit A est un filtre passe-bas actif du 1er ordre : RC en entrée sur (+) et AOP non-inverseur. Le Sallen-Key (Circuit B) a deux étages RC en cascade.'
+    B: '✓ Bonne réponse ! Le circuit B est un filtre passe-bas actif d’ordre 2 selon la topologie de Sallen-Key.',
+    A: '✗ Ce circuit est un filtre passe-bas actif du 1er ordre. La bonne réponse est le circuit B : un passe-bas d’ordre 2 selon la topologie de Sallen-Key.'
   },
   '5': {
     '1':    '✓ Q = 1 pour l\'étage 2ème ordre du Butterworth ordre 3. Les pôles de Butterworth ordre 3 sont : un pôle réel en −1 et deux pôles complexes en −0,5 ± j(√3/2), ce qui donne Q = 1.',
     '0707': '✗ Q = 0,707 est le facteur Q du Butterworth d\'ordre 2 seul. Pour l\'ordre 3, les pôles sont placés différemment et l\'étage 2ème ordre a Q = 1.',
-    '1307': '✗ Q = 1,307 correspond à Chebyshev type 1. Pour Butterworth ordre 3 : Q = 1.'
+    '1307': '✗ Q = 1,307 correspond généralement à un filtre Butterworth d’ordre 4 lorsqu’il est divisé en deux étages de filtres d’ordre 2. Pour Butterworth ordre 3 : Q = 1.'
   },
   '6': {
     B: '✓ R = 15 916 Ω. R = 1/(2π × 100 × 100×10⁻⁹) ≈ 15 916 Ω ≈ 16 kΩ. C\'est 10× plus grand qu\'à 1 kHz, car f₀ est 10× plus basse.',
@@ -409,6 +478,7 @@ function answerQ(btn) {
       const s = document.getElementById('success');
       s.style.display = 'block';
       s.scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => launchDemo(), 1300);
     }, 500);
   }
 
@@ -426,6 +496,130 @@ function goStep(n) {
   updateProg(n);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+// ── DEMO ECG : bruit HF puis filtrage Butterworth ordre 3 ─────────
+let demoStarted = false;
+function launchDemo(){
+  const demo = document.getElementById('demoContainer');
+  if (!demo) return;
+  demo.classList.add('visible');
+  demo.scrollIntoView({ behavior:'smooth', block:'start' });
+  if (!demoStarted) {
+    demoStarted = true;
+    initECGDemo();
+  }
+}
+
+const ECG_FS  = 1000;
+const ECG_DT  = 1/ECG_FS;
+const ECG_FC  = 100;
+const ECG_FC_HP = 150;
+const ECG_BUF = Math.round(7 * ECG_FS);
+const ECG_WIN = Math.round(3.5 * ECG_FS);
+let cleanBuf, rawNoise, rawBuf, filtBuf;
+let emgSigma = 0.08;
+let blancSig = 0.03;
+let ecgOffset = 200;
+let ecgRunning = true;
+let ecgInitialized = false;
+
+function randn(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function gauss(t,mu,sig,amp){return amp*Math.exp(-0.5*((t-mu)/sig)**2);}
+function ecgBeat(t, RR){
+  const R=0.33*RR; let v=0;
+  v += gauss(t,R-0.145,0.025, 0.14);
+  v += gauss(t,R-0.022,0.009,-0.09);
+  v += gauss(t,R,      0.006, 1.10);
+  v += gauss(t,R+0.026,0.010,-0.24);
+  v += gauss(t,R+0.065,0.022, 0.05);
+  v += gauss(t,R+0.175,0.045, 0.27);
+  v += 0.025*Math.sin(2*Math.PI*0.25*t);
+  return v;
+}
+function buildClean(){
+  const c=new Float32Array(ECG_BUF); let i=0,t=0;
+  while(i<ECG_BUF){
+    const RR=0.72+0.05*Math.sin(2*Math.PI*0.08*t)+0.015*(Math.random()-0.5);
+    const n=Math.round(RR*ECG_FS);
+    for(let j=0;j<n&&i<ECG_BUF;j++,i++) c[i]=ecgBeat(j*ECG_DT,RR);
+    t+=RR;
+  }
+  return c;
+}
+function makeHP(fc,fs){
+  const wc=2*fs*Math.tan(Math.PI*fc/fs), k=wc/(2*fs), k2=k*k, Q=0.707, d=1+k/Q+k2;
+  return {b0:1/d,b1:-2/d,b2:1/d,a1:(2*k2-2)/d,a2:(1-k/Q+k2)/d};
+}
+function applyBiquad(input,coef){
+  const out=new Float32Array(input.length); let x1=0,x2=0,y1=0,y2=0;
+  for(let i=0;i<input.length;i++){const x=input[i];const y=coef.b0*x+coef.b1*x1+coef.b2*x2-coef.a1*y1-coef.a2*y2;x2=x1;x1=x;y2=y1;y1=y;out[i]=y;}
+  return out;
+}
+const HP_EMG=makeHP(ECG_FC_HP,ECG_FS);
+function makeLP3(fc,fs){
+  const wc=2*fs*Math.tan(Math.PI*fc/fs);
+  const k1=wc/(2*fs);
+  const s1={b0:k1/(1+k1),b1:k1/(1+k1),a1:(k1-1)/(1+k1)};
+  const k2=wc/(2*fs), k2sq=k2*k2, Q=1, d=1+k2/Q+k2sq;
+  const s2={b0:k2sq/d,b1:2*k2sq/d,b2:k2sq/d,a1:(2*k2sq-2)/d,a2:(1-k2/Q+k2sq)/d};
+  return {s1,s2};
+}
+const LP3=makeLP3(ECG_FC,ECG_FS);
+function applyLP3(input){
+  const N=input.length,tmp=new Float32Array(N),out=new Float32Array(N); let xp=0,yp=0;
+  for(let i=0;i<N;i++){const x=input[i];const y=LP3.s1.b0*x+LP3.s1.b1*xp-LP3.s1.a1*yp;xp=x;yp=y;tmp[i]=y;}
+  let x1=0,x2=0,y1=0,y2=0; const c=LP3.s2;
+  for(let i=0;i<N;i++){const x=tmp[i];const y=c.b0*x+c.b1*x1+c.b2*x2-c.a1*y1-c.a2*y2;x2=x1;x1=x;y2=y1;y1=y;out[i]=y;}
+  return out;
+}
+function buildNoise(){rawNoise=new Float32Array(ECG_BUF);for(let i=0;i<ECG_BUF;i++)rawNoise[i]=randn();}
+function buildRaw(){
+  rawBuf=new Float32Array(ECG_BUF);
+  const emgHF=applyBiquad(rawNoise,HP_EMG); let rms=0;
+  for(let i=0;i<ECG_BUF;i++)rms+=emgHF[i]*emgHF[i];
+  rms=Math.sqrt(rms/ECG_BUF)||1; const emgScale=emgSigma/rms;
+  for(let i=0;i<ECG_BUF;i++)rawBuf[i]=cleanBuf[i]+emgScale*emgHF[i]+blancSig*randn();
+  filtBuf=applyLP3(rawBuf);
+}
+function attenuationDB(f){const r=f/ECG_FC;return (-10*Math.log10(1+r**6)).toFixed(0)+' dB';}
+function initECGDemo(){
+  if(ecgInitialized)return; ecgInitialized=true;
+  cleanBuf=buildClean(); buildNoise(); buildRaw();
+  ecgRunning=true; requestAnimationFrame(ecgFrame);
+}
+function plotColors(){return {bg:'#ffffff',grid:'rgba(15,23,42,.08)',zero:'rgba(15,23,42,.20)',raw:'#DC2626',filt:'#16A34A'};}
+function drawSig(ctx,buf,start,col,yMin,yMax){
+  const W=ctx.canvas.width,H=ctx.canvas.height,c=plotColors();
+  ctx.clearRect(0,0,W,H);ctx.fillStyle=c.bg;ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle=c.grid;ctx.lineWidth=1;
+  for(let gx=0;gx<=7;gx++){const x=gx/7*W;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let gy=0;gy<=4;gy++){const y=gy/4*H;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  const range=yMax-yMin; const y0=H*(1-(0-yMin)/range)*0.9+H*0.05;
+  ctx.strokeStyle=c.zero;ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(0,y0);ctx.lineTo(W,y0);ctx.stroke();ctx.setLineDash([]);
+  ctx.strokeStyle=col;ctx.lineWidth=2.2;ctx.beginPath();
+  for(let i=0;i<ECG_WIN;i++){const v=Math.max(yMin,Math.min(yMax,buf[(start+i)%ECG_BUF]));const x=(i/ECG_WIN)*W;const y=H*(1-(v-yMin)/range)*0.9+H*0.05;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+  ctx.stroke();
+}
+function drawOverlay(start){
+  const ctx=document.getElementById('cv-over').getContext('2d'),W=ctx.canvas.width,H=ctx.canvas.height,c=plotColors();
+  ctx.clearRect(0,0,W,H);ctx.fillStyle=c.bg;ctx.fillRect(0,0,W,H);ctx.strokeStyle=c.grid;ctx.lineWidth=1;
+  for(let gx=0;gx<=10;gx++){const x=gx/10*W;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let gy=0;gy<=4;gy++){const y=gy/4*H;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  const yMin=-1.6,yMax=1.6,range=yMax-yMin;
+  function line(buf,col,width,alpha){ctx.strokeStyle=col;ctx.lineWidth=width;ctx.globalAlpha=alpha;ctx.beginPath();for(let i=0;i<ECG_WIN;i++){const v=Math.max(yMin,Math.min(yMax,buf[(start+i)%ECG_BUF]));const x=(i/ECG_WIN)*W;const y=H*(1-(v-yMin)/range)*0.9+H*0.05;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();ctx.globalAlpha=1;}
+  line(rawBuf,c.raw,1.4,.35); line(filtBuf,c.filt,2.8,1);
+}
+function ecgFrame(){
+  if(!ecgInitialized)return; const c=plotColors();
+  drawSig(document.getElementById('cv-raw').getContext('2d'),rawBuf,ecgOffset,c.raw,-1.6,1.6);
+  drawSig(document.getElementById('cv-filt').getContext('2d'),filtBuf,ecgOffset,c.filt,-1.6,1.6);
+  drawOverlay(ecgOffset); ecgOffset=(ecgOffset+2)%ECG_BUF;
+  if(ecgRunning)requestAnimationFrame(ecgFrame);
+}
+function toggleAnim(){ecgRunning=!ecgRunning;document.getElementById('btn-play').textContent=ecgRunning?'⏸ Pause':'▶ Reprendre';if(ecgRunning)requestAnimationFrame(ecgFrame);}
+function resetAnim(){buildNoise();buildRaw();if(!ecgRunning){ecgRunning=true;document.getElementById('btn-play').textContent='⏸ Pause';}requestAnimationFrame(ecgFrame);}
+function updateNoise(v){emgSigma=0.02+(Number(v)/100)*0.18;document.getElementById('noise-lbl').textContent='σ = '+emgSigma.toFixed(2);buildRaw();}
+
 </script>
 </body>
 </html>
