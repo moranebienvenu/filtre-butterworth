@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exercice — Filtre Butterworth ordre 3 | Polytechnique Montréal</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #1B2A4A;
+    --blue: #2563EB;
+    --blue-light: #DBEAFE;
+    --blue-bg: #EFF6FF;
+    --teal: #0D9488;
+    --teal-bg: #F0FDF4;
+    --red: #DC2626;
+    --red-bg: #FEF2F2;
+    --green: #16A34A;
+    --green-bg: #DCFCE7;
+    --orange: #EA580C;
+    --orange-bg: #FFF7ED;
+    --gray: #64748B;
+    --lgray: #E2E8F0;
+    --bg: #F8FAFF;
+    --white: #FFFFFF;
+    --card: #FFFFFF;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--navy);
+    min-height: 100vh;
+    padding-bottom: 3rem;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--navy);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .header-left h1 { font-size: 18px; color: #fff; font-weight: 600; }
+  .header-left p  { font-size: 12px; color: #93C5FD; margin-top: 2px; }
+  .header-badge {
+    background: #1e3a5f; color: #60a5fa;
+    font-size: 11px; font-weight: 600;
+    padding: 4px 12px; border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  /* PROGRESS */
+  .progress-wrap { background: var(--navy); padding: 0 24px 16px; }
+  .progress-steps { display: flex; gap: 0; }
+  .p-step {
+    flex: 1; text-align: center; font-size: 11px; font-weight: 500;
+    padding: 6px 4px; border-bottom: 3px solid #334155;
+    color: #64748b; cursor: pointer; transition: all 0.2s;
+  }
+  .p-step.active { color: #60a5fa; border-bottom-color: #2563eb; }
+  .p-step.done   { color: #34d399; border-bottom-color: #059669; }
+
+  /* MAIN */
+  .container { max-width: 720px; margin: 0 auto; padding: 24px 16px; }
+
+  /* SPEC BANNER */
+  .spec-banner {
+    background: var(--blue-bg); border: 1px solid var(--blue-light);
+    border-radius: 10px; padding: 12px 16px; margin-bottom: 20px;
+    font-size: 13px; color: var(--navy);
+  }
+  .spec-banner strong { color: var(--blue); }
+
+  /* STEP CARD */
+  .step-card {
+    background: var(--card); border: 0.5px solid var(--lgray);
+    border-radius: 12px; padding: 20px; margin-bottom: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .step-num {
+    display: inline-block; background: var(--blue); color: #fff;
+    font-size: 11px; font-weight: 600; padding: 2px 9px;
+    border-radius: 20px; margin-bottom: 10px;
+  }
+  .step-card h2 { font-size: 17px; font-weight: 600; margin-bottom: 8px; color: var(--navy); }
+  .step-card .intro { font-size: 14px; color: var(--gray); line-height: 1.65; margin-bottom: 14px; }
+
+  /* FORMULA BOX */
+  .formula {
+    background: #F1F5FF; border: 0.5px solid #C7D7F9;
+    border-radius: 8px; padding: 12px 16px;
+    font-family: "Courier New", monospace; font-size: 13px;
+    color: #1e3a8a; line-height: 1.9; margin-bottom: 16px;
+  }
+  .formula .flabel {
+    font-family: sans-serif; font-size: 10px; color: #64748b;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    margin-bottom: 6px; display: block;
+  }
+
+  /* INPUTS */
+  .input-group { margin-bottom: 12px; }
+  .input-group label { display: block; font-size: 13px; color: var(--gray); margin-bottom: 5px; }
+  .input-row { display: flex; align-items: center; gap: 8px; }
+  .input-row input {
+    width: 110px; padding: 8px 10px; border: 1px solid var(--lgray);
+    border-radius: 7px; font-size: 14px; color: var(--navy);
+    background: #fff; outline: none; font-family: "Courier New", monospace;
+  }
+  .input-row input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px #DBEAFE; }
+  .unit { font-size: 12px; color: var(--gray); }
+
+  /* BUTTONS */
+  .btn-primary {
+    background: var(--blue); color: #fff;
+    border: none; padding: 10px 22px; border-radius: 8px;
+    font-size: 14px; font-weight: 500; cursor: pointer;
+    margin-top: 4px; transition: background 0.15s;
+  }
+  .btn-primary:hover { background: #1d4ed8; }
+
+  .choice-btns { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .choice-btn {
+    text-align: left; padding: 11px 16px; border-radius: 8px;
+    border: 1px solid var(--lgray); background: #fff;
+    font-size: 14px; color: var(--navy); cursor: pointer;
+    transition: all 0.15s;
+  }
+  .choice-btn:hover { border-color: var(--blue); background: var(--blue-bg); }
+
+  /* FEEDBACK */
+  .feedback {
+    border-radius: 8px; padding: 12px 14px;
+    font-size: 13px; line-height: 1.6; margin-top: 12px;
+    display: none;
+  }
+  .feedback.ok  { background: var(--green-bg); color: #14532d; border: 1px solid #bbf7d0; display: block; }
+  .feedback.err { background: var(--red-bg);   color: #7f1d1d; border: 1px solid #fecaca; display: block; }
+  .feedback.hint{ background: var(--orange-bg); color: #7c2d12; border: 1px solid #fed7aa; display: block; }
+
+  /* CASCADE VIZ */
+  .cascade {
+    display: flex; align-items: center; gap: 8px;
+    margin: 16px 0; flex-wrap: wrap;
+  }
+  .c-box {
+    background: var(--blue-bg); border: 1px solid var(--blue-light);
+    border-radius: 8px; padding: 10px 14px;
+    font-size: 12px; font-family: "Courier New", monospace;
+    color: var(--blue); text-align: center; min-width: 100px;
+  }
+  .c-box.highlight { background: var(--navy); color: #60a5fa; border-color: var(--navy); }
+  .c-arrow { color: var(--gray); font-size: 20px; }
+  .c-label { font-size: 11px; color: var(--gray); margin-top: 3px; }
+
+  /* RESULT GRID */
+  .result-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px; margin: 16px 0;
+  }
+  .result-card {
+    background: var(--bg); border: 0.5px solid var(--lgray);
+    border-radius: 8px; padding: 12px;
+  }
+  .result-card .rl { font-size: 11px; color: var(--gray); margin-bottom: 4px; }
+  .result-card .rv { font-size: 17px; font-weight: 600; color: var(--navy); font-family: "Courier New", monospace; }
+
+  /* HINT BOX */
+  .hint-box {
+    background: #FFFBEB; border: 1px solid #FDE68A;
+    border-radius: 8px; padding: 12px 14px;
+    font-size: 13px; color: #78350f; margin-bottom: 14px;
+    line-height: 1.6;
+  }
+  .hint-box strong { color: #92400e; }
+
+  /* SUCCESS STATE */
+  .success-banner {
+    background: linear-gradient(135deg, #065f46, #0d9488);
+    border-radius: 12px; padding: 24px; text-align: center;
+    color: #fff; margin-top: 8px;
+  }
+  .success-banner h2 { font-size: 22px; margin-bottom: 8px; }
+  .success-banner p  { font-size: 14px; opacity: 0.85; line-height: 1.6; }
+  .success-icon { font-size: 48px; margin-bottom: 12px; }
+
+  /* NEXT BTN */
+  .next-btn {
+    display: none; width: 100%; margin-top: 14px;
+    background: var(--teal); color: #fff; border: none;
+    padding: 12px; border-radius: 8px; font-size: 14px;
+    font-weight: 500; cursor: pointer; transition: background 0.15s;
+  }
+  .next-btn:hover { background: #0f766e; }
+  .next-btn.visible { display: block; }
+
+  /* STEP HIDDEN */
+  .step-section { display: none; }
+  .step-section.active { display: block; }
+
+  /* FOOTER */
+  .footer {
+    text-align: center; color: var(--gray); font-size: 12px;
+    margin-top: 2rem; padding-top: 1rem;
+    border-top: 1px solid var(--lgray);
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>Filtre Butterworth d'ordre 3</h1>
+    <p>Exercice guidé — AOP en mode filtrage · Polytechnique Montréal</p>
+  </div>
+  <div class="header-badge" id="step-badge">Étape 1 / 5</div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-steps">
+    <div class="p-step active" id="ps-1" onclick="tryNav(1)">① Décomposer</div>
+    <div class="p-step" id="ps-2" onclick="tryNav(2)">② Ordre 1</div>
+    <div class="p-step" id="ps-3" onclick="tryNav(3)">③ Ordre 2 (Q, k)</div>
+    <div class="p-step" id="ps-4" onclick="tryNav(4)">④ R et C</div>
+    <div class="p-step" id="ps-5" onclick="tryNav(5)">⑤ Vérification</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="spec-banner">
+    <strong>Cahier des charges :</strong> concevoir un filtre passe-bas Butterworth d'ordre 3 avec
+    <strong>f₀ = 1 kHz</strong> et <strong>gain unitaire</strong> en bande passante.
+    Utiliser la topologie <strong>Sallen-Key</strong>.
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- ÉTAPE 1 -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="step-section active" id="s1">
+    <div class="step-card">
+      <div class="step-num">Étape 1 — Décomposition</div>
+      <h2>Comment décomposer un filtre d'ordre 3 ?</h2>
+      <p class="intro">
+        Un filtre d'ordre 3 ne peut pas être réalisé directement par un seul Sallen-Key (ordre 2 max).
+        Il faut le décomposer en cascade. Les fonctions de transfert se <strong>multiplient</strong>
+        grâce à l'impédance de sortie nulle de l'AOP.
+      </p>
+      <div class="formula">
+        <span class="flabel">Propriété clé</span>
+        H_total(jω) = H₁(jω) × H₂(jω)<br>
+        Z_out(AOP) ≈ 0  →  aucune interaction entre étages
+      </div>
+      <p class="intro" style="margin-bottom:14px;">Quelle est la bonne décomposition pour l'ordre 3 ?</p>
+      <div class="choice-btns">
+        <button class="choice-btn" onclick="checkDecomp('a')">A&nbsp;&nbsp; 1 étage 1er ordre &nbsp;+&nbsp; 1 étage 2ème ordre (Sallen-Key)</button>
+        <button class="choice-btn" onclick="checkDecomp('b')">B&nbsp;&nbsp; 3 étages 1er ordre en cascade</button>
+        <button class="choice-btn" onclick="checkDecomp('c')">C&nbsp;&nbsp; 1 étage 2ème ordre &nbsp;+&nbsp; 1 étage d'ordre 0 (gain constant)</button>
+      </div>
+      <div class="feedback" id="fb1"></div>
+      <button class="next-btn" id="next1" onclick="goStep(2)">Étape suivante →</button>
+    </div>
+
+    <div class="step-card" style="background:#F8FAFF;">
+      <p style="font-size:13px; color:var(--gray); margin-bottom:12px;">Structure de votre filtre :</p>
+      <div class="cascade">
+        <div style="font-size:13px; color:var(--gray);">V_in →</div>
+        <div class="c-box highlight">Passe-bas<br>1er ordre<br><span class="c-label">RC + suiveur</span></div>
+        <div class="c-arrow">→</div>
+        <div class="c-box highlight">Sallen-Key<br>2ème ordre<br><span class="c-label">Q = 1, k = 2</span></div>
+        <div class="c-arrow">→</div>
+        <div style="font-size:13px; color:var(--gray);">→ V_out</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- ÉTAPE 2 -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="step-section" id="s2">
+    <div class="step-card">
+      <div class="step-num">Étape 2 — Étage 1er ordre</div>
+      <h2>Calculer R pour l'étage passe-bas 1er ordre</h2>
+      <p class="intro">
+        L'étage 1er ordre est un filtre RC passe-bas suivi d'un suiveur (gain = 1).
+        Sa fréquence de coupure doit être f₀ = 1 kHz.
+      </p>
+      <div class="formula">
+        <span class="flabel">Relations clés</span>
+        H₁(jω) = 1 / (1 + jω/ω₀)<br>
+        ω₀ = 2π f₀ = 2π × 1000 ≈ 6 283 rad/s<br>
+        ω₀ = 1/(RC)  →  R = 1/(ω₀·C)
+      </div>
+      <div class="hint-box">
+        <strong>Astuce :</strong> on fixe C = 100 nF (valeur commerciale courante),
+        puis on calcule R. C'est la méthode standard en Sallen-Key.
+      </div>
+      <div class="input-group">
+        <label>C fixé = 100 nF. Calculez R = 1/(ω₀ × C) :</label>
+        <div class="input-row">
+          <input type="number" id="r1" placeholder="ex: 1590" min="1">
+          <span class="unit">Ω</span>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="checkR1()">Vérifier</button>
+      <div class="feedback" id="fb2"></div>
+      <button class="next-btn" id="next2" onclick="goStep(3)">Étape suivante →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- ÉTAPE 3 -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="step-section" id="s3">
+    <div class="step-card">
+      <div class="step-num">Étape 3 — Étage Sallen-Key 2ème ordre</div>
+      <h2>Trouver Q et k pour le Butterworth ordre 3</h2>
+      <p class="intro">
+        Pour un Butterworth d'ordre 3, l'étage 2ème ordre a un facteur de qualité
+        <strong>Q = 1</strong> (différent du Butterworth ordre 2 qui a Q = 0.707 !).
+        Déduisez k à partir de Q.
+      </p>
+      <div class="formula">
+        <span class="flabel">Sallen-Key passe-bas</span>
+        H₂(jω) = k / [(jω/ω₀)² + jω(3−k)/ω₀ + 1]<br><br>
+        Q = 1/(3−k)  →  k = 3 − 1/Q<br>
+        ω₀ même f₀ = 1 kHz  →  même R et C qu'à l'étape 2
+      </div>
+      <div class="input-group">
+        <label>Q pour Butterworth ordre 3, étage 2ème ordre :</label>
+        <div class="input-row">
+          <input type="number" id="q2" placeholder="ex: 0.707" step="0.001" min="0.1">
+        </div>
+      </div>
+      <div class="input-group">
+        <label>k = 3 − 1/Q =</label>
+        <div class="input-row">
+          <input type="number" id="k2" placeholder="ex: 1.586" step="0.001" min="0.1" max="2.99">
+        </div>
+      </div>
+      <button class="btn-primary" onclick="checkQK()">Vérifier Q et k</button>
+      <div class="feedback" id="fb3"></div>
+      <button class="next-btn" id="next3" onclick="goStep(4)">Étape suivante →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- ÉTAPE 4 -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="step-section" id="s4">
+    <div class="step-card">
+      <div class="step-num">Étape 4 — Valeurs des composants</div>
+      <h2>Calculer Rf pour l'étage Sallen-Key</h2>
+      <p class="intro">
+        Vous avez k = 2 et R ≈ 1 592 Ω (de l'étape 2). 
+        Dans Sallen-Key, le gain k est réalisé par un ampli non-inverseur :
+        k = 1 + Rf/R. Calculez Rf.
+      </p>
+      <div class="formula">
+        <span class="flabel">Montage non-inverseur Sallen-Key</span>
+        k = 1 + Rf/R<br>
+        Rf = (k − 1) × R<br>
+        Avec k = 2 et R ≈ 1 592 Ω → Rf = ?
+      </div>
+      <div class="input-group">
+        <label>Rf = (k − 1) × R =</label>
+        <div class="input-row">
+          <input type="number" id="rf" placeholder="?" min="0">
+          <span class="unit">Ω</span>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="checkRF()">Vérifier</button>
+      <div class="feedback" id="fb4"></div>
+      <button class="next-btn" id="next4" onclick="goStep(5)">Étape suivante →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- ÉTAPE 5 -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="step-section" id="s5">
+    <div class="step-card">
+      <div class="step-num">Étape 5 — Vérification finale</div>
+      <h2>Récapitulatif de votre filtre</h2>
+      <p class="intro">
+        Voici les valeurs complètes de votre filtre Butterworth d'ordre 3.
+        Une dernière vérification : calculez l'atténuation à ω = ω₀.
+      </p>
+
+      <div class="result-grid">
+        <div class="result-card"><div class="rl">f₀ coupure</div><div class="rv">1 000 Hz</div></div>
+        <div class="result-card"><div class="rl">C (tous étages)</div><div class="rv">100 nF</div></div>
+        <div class="result-card"><div class="rl">R (tous étages)</div><div class="rv">1 592 Ω</div></div>
+        <div class="result-card"><div class="rl">k étage 2</div><div class="rv">2.000</div></div>
+        <div class="result-card"><div class="rl">Q étage 2</div><div class="rv">1.000</div></div>
+        <div class="result-card"><div class="rl">Rf étage 2</div><div class="rv">1 592 Ω</div></div>
+      </div>
+
+      <div class="formula">
+        <span class="flabel">Fonction de transfert totale</span>
+        H(jω) = H₁(jω) × H₂(jω)<br><br>
+        H₁ = 1 / (1 + jω/ω₀)<br>
+        H₂ = 2 / [(jω/ω₀)² + jω/ω₀ + 1]<br><br>
+        Pente asymptotique : −60 dB/décade
+      </div>
+
+      <div class="hint-box">
+        <strong>Question piège :</strong> À ω = ω₀, l'atténuation totale vaut combien en dB ?
+        Indice : calculez |H₁(jω₀)| et |H₂(jω₀)| séparément, puis combinez.
+      </div>
+
+      <div class="input-group">
+        <label>|H_total(jω₀)| en dB = 20·log|H₁| + 20·log|H₂| =</label>
+        <div class="input-row">
+          <input type="number" id="db-ans" placeholder="ex: −3" step="0.1">
+          <span class="unit">dB</span>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="checkDB()">Vérifier la réponse finale</button>
+      <div class="feedback" id="fb5"></div>
+    </div>
+
+    <div class="success-banner" id="success-final" style="display:none;">
+      <div class="success-icon">🎉</div>
+      <h2>Exercice complété !</h2>
+      <p>
+        Vous avez conçu un filtre Butterworth passe-bas d'ordre 3 complet.<br>
+        f₀ = 1 kHz · C = 100 nF · R = Rf = 1 592 Ω · −9 dB à ω₀<br><br>
+        À ω₀ : H₁ = −3 dB et H₂ = −6 dB → total = <strong>−9 dB</strong><br>
+        La pente finale est de <strong>−60 dB/décade</strong> (3 × −20 dB/dec)
+      </p>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<div class="container">
+  <div class="footer">
+    Exercice interactif · L'amplificateur opérationnel en mode filtrage · Polytechnique Montréal
+  </div>
+</div>
+
+<script>
+const W0 = 2 * Math.PI * 1000;
+const C  = 100e-9;
+const R_EXACT  = 1 / (W0 * C);   // ~1591.5 Ω
+const RF_EXACT = R_EXACT;         // k=2 → Rf = (2-1)*R = R
+
+let stepsOk = [false, false, false, false, false];
+let currentStep = 1;
+
+function updateNav(step) {
+  currentStep = step;
+  document.getElementById('step-badge').textContent = 'Étape ' + step + ' / 5';
+  for (let i = 1; i <= 5; i++) {
+    const ps = document.getElementById('ps-' + i);
+    ps.className = 'p-step' +
+      (i === step ? ' active' : '') +
+      (stepsOk[i-1] && i !== step ? ' done' : '');
+  }
+}
+
+function tryNav(n) {
+  if (n === 1 || stepsOk[n-2]) goStep(n);
+}
+
+function goStep(n) {
+  for (let i = 1; i <= 5; i++) {
+    const s = document.getElementById('s' + i);
+    s.className = 'step-section' + (i === n ? ' active' : '');
+  }
+  updateNav(n);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showFb(id, cls, msg) {
+  const el = document.getElementById(id);
+  el.className = 'feedback ' + cls;
+  el.innerHTML = msg;
+}
+
+function checkDecomp(choice) {
+  if (choice === 'a') {
+    showFb('fb1', 'ok',
+      '✓ Correct ! Ordre 3 = étage 1er ordre + étage Sallen-Key 2ème ordre. ' +
+      'H_total = H₁ × H₂ grâce à Z_out ≈ 0 de l\'AOP.');
+    stepsOk[0] = true;
+    document.getElementById('next1').className = 'next-btn visible';
+    updateNav(1);
+  } else if (choice === 'b') {
+    showFb('fb1', 'err',
+      '✗ Trois étages 1er ordre donneraient bien l\'ordre 3, mais les pôles ' +
+      'ne correspondent pas à Butterworth. La décomposition canonique est 1er + 2ème ordre.');
+  } else {
+    showFb('fb1', 'err',
+      '✗ Un filtre d\'ordre 0 est juste un gain constant — il n\'a aucun pôle ' +
+      'et ne filtre rien. Ce n\'est pas une décomposition valide.');
+  }
+}
+
+function checkR1() {
+  const val = parseFloat(document.getElementById('r1').value);
+  const err = Math.abs(val - R_EXACT) / R_EXACT;
+  if (isNaN(val)) { showFb('fb2','err','Entrez une valeur numérique.'); return; }
+  if (err < 0.03) {
+    showFb('fb2', 'ok',
+      '✓ Correct ! R = 1/(6283 × 100×10⁻⁹) = ' + R_EXACT.toFixed(1) + ' Ω ≈ 1,59 kΩ. ' +
+      'En pratique on utilise une résistance standard de 1,6 kΩ (tolérance 1%).');
+    stepsOk[1] = true;
+    document.getElementById('next2').className = 'next-btn visible';
+    updateNav(2);
+  } else {
+    showFb('fb2', 'err',
+      '✗ Pas tout à fait. R = 1/(ω₀·C) = 1/(2π×1000×100×10⁻⁹) = ' +
+      R_EXACT.toFixed(0) + ' Ω. Recalculez avec ω₀ = 6283 rad/s.');
+  }
+}
+
+function checkQK() {
+  const q = parseFloat(document.getElementById('q2').value);
+  const k = parseFloat(document.getElementById('k2').value);
+  if (isNaN(q) || isNaN(k)) { showFb('fb3','err','Entrez Q et k.'); return; }
+  const qOk = Math.abs(q - 1.0) < 0.05;
+  const kOk = Math.abs(k - 2.0) < 0.05;
+  if (qOk && kOk) {
+    showFb('fb3', 'ok',
+      '✓ Parfait ! Q = 1 pour le Butterworth ordre 3 (≠ 0.707 pour ordre 2 seul !). ' +
+      'k = 3 − 1/Q = 3 − 1 = 2. Simple à retenir : k = 2 exactement.');
+    stepsOk[2] = true;
+    document.getElementById('next3').className = 'next-btn visible';
+    updateNav(3);
+  } else if (!qOk) {
+    showFb('fb3', 'err',
+      '✗ Q incorrect. Pour Butterworth ordre 3, l\'étage 2ème ordre a Q = 1 ' +
+      '(pas 0.707 — c\'est le piège classique !). Corrigez Q.');
+  } else {
+    showFb('fb3', 'err',
+      '✗ k incorrect. Avec Q = 1 : k = 3 − 1/1 = 2. Recalculez.');
+  }
+}
+
+function checkRF() {
+  const val = parseFloat(document.getElementById('rf').value);
+  const err = Math.abs(val - RF_EXACT) / RF_EXACT;
+  if (isNaN(val)) { showFb('fb4','err','Entrez une valeur.'); return; }
+  if (err < 0.03) {
+    showFb('fb4', 'ok',
+      '✓ Excellent ! Rf = (2−1) × 1592 = 1592 Ω. ' +
+      'Remarquez que Rf = R — c\'est une coïncidence élégante quand k = 2 ! ' +
+      'Vous n\'avez qu\'une seule valeur de composant à acheter.');
+    stepsOk[3] = true;
+    document.getElementById('next4').className = 'next-btn visible';
+    updateNav(4);
+  } else {
+    showFb('fb4', 'err',
+      '✗ Rf = (k−1)×R = (2−1)×' + R_EXACT.toFixed(0) + ' = ' + RF_EXACT.toFixed(0) + ' Ω.');
+  }
+}
+
+function checkDB() {
+  const val = parseFloat(document.getElementById('db-ans').value);
+  if (isNaN(val)) { showFb('fb5','err','Entrez une valeur en dB.'); return; }
+
+  if (Math.abs(val - (-9)) < 0.6) {
+    showFb('fb5', 'ok',
+      '✓ Bravo ! La réponse est −9 dB à ω₀. ' +
+      'H₁(jω₀) : |H₁| = 1/√2 → −3 dB. ' +
+      'H₂(jω₀) avec Q=1 : |H₂| = 2/√(0+1+1) = 2/2 = 1/√... → −6 dB. ' +
+      'Total : −3 + (−6) = −9 dB. ');
+    stepsOk[4] = true;
+    updateNav(5);
+    document.getElementById('success-final').style.display = 'block';
+    setTimeout(() => document.getElementById('success-final')
+      .scrollIntoView({ behavior: 'smooth' }), 300);
+  } else if (Math.abs(val - (-3)) < 0.5) {
+    showFb('fb5', 'hint',
+      '⚠ −3 dB est la coupure du 1er ordre seul. Ici vous avez DEUX étages en cascade : ' +
+      'H₁ contribue −3 dB ET H₂ contribue sa propre atténuation à ω₀. ' +
+      'Calculez |H₂(jω₀)| séparément avec Q=1 et k=2.');
+  } else if (Math.abs(val - (-6)) < 0.5) {
+    showFb('fb5', 'hint',
+      '⚠ Vous avez trouvé l\'atténuation de H₂ seul. N\'oubliez pas d\'ajouter ' +
+      'la contribution de H₁ (−3 dB à ω₀). Total = −3 + (−6) = ?');
+  } else {
+    showFb('fb5', 'err',
+      '✗ Pas tout à fait. Méthode : ' +
+      '|H₁(jω₀)| = 1/√(1+1) = 0.707 → 20·log(0.707) = −3 dB. ' +
+      'Pour H₂ avec Q=1, k=2 à ω=ω₀ : calculez le module. ' +
+      'Puis additionnez les deux valeurs en dB.');
+  }
+}
+</script>
+</body>
+</html>
